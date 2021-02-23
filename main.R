@@ -10,23 +10,23 @@ library(gplots)
 
 ## Functions ---------------------------------------------------------------
 # Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
-sigGenes <- function(name, plots=T, type="normal", filBy="padj", filVal=0.05, con1, con2) {
+sigGenes <- function(name, plots=T, filBy="padj", filVal=0.05, con1, con2) {
   # plots = T (default), type = normal (default) or shrink, filBy = padj (default) or pvalue, filVal = 0.05 (default)
-  # Get differential expression results, adjusted by type
-  if(type=="shrink") { 
+  # Get differential expression results, both shrunken and not shrunken
     res <- lfcShrink(dds=dds, contrast=c("condition",con1,con2), type="ashr")
-  } else { 
-    res <- results(dds, contrast=c("condition",con1,con2))
-  } 
+    resNS <- results(dds, contrast=c("condition",con1,con2))
   
   # Extract genes for specified value (padj is default), then order by descending log2foldchange
   if (filBy == "pvalue") {
     resSig <- res[ which(res$pvalue < filVal),]
+    resNS <- resNS[which(res$pvalue < filVal),]
   } else {
     resSig <- res[ which(res$padj < filVal),]
+    resNS <- resNS[which(res$padj < filVal),]
   }
   resSig <- resSig[order(resSig$log2FoldChange, decreasing=TRUE),]
-  
+  resNS <- resNS[order(resNS$log2FoldChange, decreasing=TRUE),]
+
   # Annotate results gene list with gene symbol and Entrez ID, for clarity
   ens.str <- substr(rownames(resSig), 1, 15)
   resSig$symbol <- mapIds(EnsDb.Hsapiens.v86,
@@ -46,21 +46,17 @@ sigGenes <- function(name, plots=T, type="normal", filBy="padj", filVal=0.05, co
   setwd(paste0(current,"/",name,"/"))
   
   # Write csv file of results (significant gene list)
-  write.csv(resSig, file=paste0(name,"_",type,".csv"))
+  write.csv(resSig, file=paste0(name,".csv"))
   
-  # Ouptut the results in GCT format for gene set enrichment analysis (table with gene names and some metric, directional logP in this case)
-  gs <- resSig
-  gs$Gene <- rownames(gs)
-  gs$fcsign <- sign(gs$log2FoldChange)
-  gs$logP=-log10(gs$pvalue)
-  gs$metric= gs$logP/gs$fcsign
-  gsFinal<-gs[,c("Gene", "metric")]
-  write.table(gsFinal,file=paste0(name,"_geneSet.rnk"),quote=F,sep="\t",row.names=F)
-  write.csv(resSig$symbol, file=paste0(name,"_gsNameOnly.csv"))
+  # Create gene set with symbols and non shrunken metrics for downstream pathway exploration analysis
+  pathways<-resSig[,c("symbol","log2FoldChange","pvalue","padj")]
+  pathways$log2FoldChange <- resNS$log2FoldChange
+  write.csv(pathways, file="GeneSet.csv")
+  
   if (plots) {
     # Create and save MA plot
     df <- res
-    png(file=paste0(name,"_",type,"MAplot.png"),width=768,height=768)
+    png(file=paste0(name,"_MAplot.png"),width=768,height=768)
     plotMA(df, ylim=c(-2,2), colSig = "red", main=name)
     dev.off()
     
@@ -76,7 +72,7 @@ sigGenes <- function(name, plots=T, type="normal", filBy="padj", filVal=0.05, co
     rownames(anno) <- colnames(de_mat)
     names(anno)[1] <- "Condition"
     tallDim <- dim(resSig)[1]
-    png(file=paste0(name,"_",type,"HeatMap.png"), width=480, height=tallDim*12+40)
+    png(file=paste0(name,"_HeatMap.png"), width=480, height=tallDim*12+40)
     pheatmap(de_mat, annotation_col = anno, cluster_rows=FALSE, cluster_cols=FALSE)
     dev.off()
   }
@@ -124,11 +120,11 @@ heatmap.2(as.matrix(sampleDists), key=F, trace="none",
 dev.off()
 
 ## Generate significant genes, MA plot, and sig gene heat map for specified conditions ----------------------------
-sigGenes("WtVsVecP", T, "shrink", "pvalue", "0.05", "wt", "vec")
-sigGenes("WtVsVecFDR", T, "shrink", "padj", "0.05", "wt", "vec")
+sigGenes("WtVsVecP", T, "pvalue", 0.05, "wt", "vec")
+sigGenes("WtVsVecFDR", T, "padj", 0.05, "wt", "vec")
 
-sigGenes("WtVsMutP", T, "shrink", "pvalue", "0.05", "wt", "mut")
-sigGenes("WtVsMutFDR", T, "shrink", "padj", "0.05", "wt", "mut")
+sigGenes("WtVsMutP", T, "pvalue", 0.05, "wt", "mut")
+sigGenes("WtVsMutFDR", T, "padj", 0.05, "wt", "mut")
 
-sigGenes("VecVsMutP", T, "shrink", "pvalue", "0.05", "vec", "mut")
-sigGenes("VecVsMutFDR", T, "shrink", "padj", "0.05", "vec", "mut")
+sigGenes("VecVsMutP", T, "pvalue", 0.05, "vec", "mut")
+sigGenes("VecVsMutFDR", T, "padj", 0.05, "vec", "mut")
