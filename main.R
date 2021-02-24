@@ -46,12 +46,12 @@ sigGenes <- function(name, plots=T, filBy="padj", filVal=0.05, con1, con2) {
   setwd(paste0(current,"/",name,"/"))
   
   # Write csv file of results (significant gene list)
-  write.csv(resSig, file=paste0(name,".csv"))
+  write.csv(resSig, file=paste0(name,"_DEGlist.csv"))
   
   # Create gene set with symbols and non shrunken metrics for downstream pathway exploration analysis
   pathways<-resSig[,c("symbol","log2FoldChange","pvalue","padj")]
   pathways$log2FoldChange <- resNS$log2FoldChange
-  write.csv(pathways, file="GeneSet.csv")
+  write.csv(pathways, file="GeneSet.csv", row.names=FALSE)
   
   if (plots) {
     # Create and save MA plot
