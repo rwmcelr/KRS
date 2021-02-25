@@ -53,6 +53,13 @@ sigGenes <- function(name, plots=T, filBy="padj", filVal=0.05, con1, con2) {
   pathways$log2FoldChange <- resNS$log2FoldChange
   write.csv(pathways, file="GeneSet.csv", row.names=FALSE)
   
+  # Create ranked gene list (.rnk) for use with GSEA (ranks are directional log10 p value)
+  gs <- resSig[,c("symbol","log2FoldChange","pvalue")]
+  gs$fcsign <- sign(gs$log2FoldChange)
+  gs$logP=-log10(gs$pvalue)
+  gs$metric= gs$logP/gs$fcsign
+  write.table(gs[,c("symbol","metric")],file="GeneSet.rnk",quote=F,sep="\t",row.names=F)
+  
   if (plots) {
     # Create and save MA plot
     df <- res
@@ -111,13 +118,12 @@ DESeq2::plotPCA(rld, intgroup="condition")
 dev.off()
 
 # Sample distance heatmap
-sampleDists <- as.matrix(dist(t(assay(rld))))
-png(filename="sampleDists.png",width=8,height=8,units="in",res=500)
-heatmap.2(as.matrix(sampleDists), key=F, trace="none",
-          col=colorpanel(100, "black", "white"),
-          ColSideColors=mycols[condition], RowSideColors=mycols[condition],
-          margin=c(10, 10), main="Sample Distance Matrix")
-dev.off()
+ sampleDists <- as.matrix(dist(t(assay(rld))))
+ png(filename="sampleDists.png",width=8,height=8,units="in",res=500)
+ heatmap.2(as.matrix(sampleDists), key=F, trace="none",
+           col=colorpanel(100, "black", "white"),
+           margin=c(10, 10), main="Sample Distance Matrix")
+ dev.off()
 
 ## Generate significant genes, MA plot, and sig gene heat map for specified conditions ----------------------------
 sigGenes("WtVsVecP", T, "pvalue", 0.05, "wt", "vec")
