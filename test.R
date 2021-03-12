@@ -4,7 +4,6 @@ library(DESeq2)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(EnsDb.Hsapiens.v86)
-library(pheatmap)
 library(ggplot2)
 library(ggrepel)
 library(scales)
@@ -31,18 +30,28 @@ sigGenes <- function(name, plots=T, filBy="padj", filVal=0.05, con1, con2) {
                             multiVals="first")
     maPoints <- as.data.frame(resMA)
     maPoints <- merge(x = maPoints, y = tf, by = "symbol", all.x = TRUE, no.dups = TRUE)
-    maPoints$identity[maPoints$pvalue.x < 0.05 & is.na(maPoints$pvalue.y)] <- "Significant"
-    maPoints$identity[maPoints$pvalue.x < 0.05 & maPoints$identity == "NM23H2 Transcription Factor"] <- "Both"
+    maPoints$identity[maPoints$pvalue.x < 0.05 & is.na(maPoints$pvalue.y)] <- "Significant (p < 0.05)"
+    maPoints$identity[maPoints$pvalue.x < 0.05 & maPoints$identity == "NM23H2 Transcription Factor"] <- "Significant Transcription Factor"
+    png(file=paste0(name,"_MAplot.png"),width=1500,height=1500,res=150)
     plot2 <- ggplot(maPoints, aes(baseMean.x, log2FoldChange.x, colour=identity, label=symbol)) + 
+      ggtitle(paste0(name,"\nMA Plot")) +
       geom_point(size=1) +
-      geom_text(aes(label=ifelse(is.na(identity) == FALSE & identity!="Significant",as.character(symbol),'')),hjust=1,vjust=-1) +
-      scale_y_continuous(limits=c(-1, 1), oob=squish) + scale_x_log10() + 
-      geom_hline(yintercept = 0.5, colour="blue", size=1, linetype="dotted") + 
-      geom_hline(yintercept = -0.5, colour="blue", size=1, linetype="dotted") + 
+      # geom_text(aes(label=ifelse(is.na(identity) == FALSE & identity!="Significant",as.character(symbol),'')),hjust=1,vjust=-1) +
+      geom_label_repel(aes(label=ifelse(is.na(identity) == FALSE & identity!="Significant (p < 0.05)",as.character(symbol),'')),
+                       box.padding = 0.5,
+                       point.padding = 0.5,
+                       max.overlaps = Inf,
+                       segment.color = 'grey50') +
+      scale_y_continuous(limits=c(-3, 3), oob=squish) + 
+      scale_x_log10() + 
+      #geom_hline(yintercept = 0.5, colour="blue", size=1, linetype="dotted") + 
+      #geom_hline(yintercept = -0.5, colour="blue", size=1, linetype="dotted") + 
       labs(x="Mean of Normalized Counts", y="Log2 Fold Change") + 
-      scale_colour_manual(name="TF", values=c("NM23H2 Transcription Factor"="orange","Significant"="skyblue","Both"="black"), na.value="grey50") + 
-      theme_bw()
+      scale_colour_manual(name="Key", values=c("NM23H2 Transcription Factor"="orange","Significant (p < 0.05)"="skyblue","Significant Transcription Factor"="darkorchid1"), na.value="grey80") + 
+      theme_bw() +
+      theme(plot.title = element_text(hjust = 0.5))
     print(plot2)
+    dev.off()
     }
 }
 
@@ -69,4 +78,6 @@ dds <- dds[keep,]
 dds <- DESeq(dds)
 
 ## Generate significant genes, MA plot, and sig gene heat map for specified conditions ----------------------------
-sigGenes("test", T, "pvalue", 0.05, "wt", "vec")
+sigGenes("Wild Type vs Vector", T, "pvalue", 0.05, "wt", "vec")
+sigGenes("Wild Type vs E14A Mutant", T, "pvalue", 0.05, "wt", "mut")
+sigGenes("E14A Mutant vs Vector", T, "pvalue", 0.05, "mut", "vec")
