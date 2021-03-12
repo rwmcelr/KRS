@@ -1,14 +1,13 @@
 ## Library calls/ set script variables -------------------------------------
 setwd("/Users/rmcelroy/Desktop/RNAseq/")
 library(DESeq2)
-library(RColorBrewer)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(EnsDb.Hsapiens.v86)
 library(pheatmap)
 library(ggplot2)
+library(ggrepel)
 library(scales)
-library(viridis)
 tf <- read.csv("tf.csv",row.names=1)
 
 ## Functions ---------------------------------------------------------------
@@ -32,13 +31,18 @@ sigGenes <- function(name, plots=T, filBy="padj", filVal=0.05, con1, con2) {
                             multiVals="first")
     maPoints <- as.data.frame(resMA)
     maPoints <- merge(x = maPoints, y = tf, by = "symbol", all.x = TRUE, no.dups = TRUE)
-    select <- maPoints$padj < 0.2
-    maPoints[select,"identity"] <- "Significant"
-    write.csv(maPoints, file="maPoints.csv")
-    png(file="MA_plot.png",width=768,height=768)
-    plot2 <- ggplot(maPoints, aes(baseMean.x, log2FoldChange.x, colour=identity)) + geom_point(size=1) + scale_y_continuous(limits=c(-1, 1), oob=squish) + scale_x_log10() + geom_hline(yintercept = 0.5, colour="blue", size=1, linetype="dotted") + geom_hline(yintercept = -0.5, colour="blue", size=1, linetype="dotted") + labs(x="Mean of Normalized Counts", y="Log2 Fold Change") + scale_colour_manual(name="TF", values=("NM23H2 Transcription Factor"="yellow"), na.value="grey50") + theme_bw()
+    maPoints$identity[maPoints$pvalue.x < 0.05 & is.na(maPoints$pvalue.y)] <- "Significant"
+    maPoints$identity[maPoints$pvalue.x < 0.05 & maPoints$identity == "NM23H2 Transcription Factor"] <- "Both"
+    plot2 <- ggplot(maPoints, aes(baseMean.x, log2FoldChange.x, colour=identity, label=symbol)) + 
+      geom_point(size=1) +
+      geom_text(aes(label=ifelse(is.na(identity) == FALSE & identity!="Significant",as.character(symbol),'')),hjust=1,vjust=-1) +
+      scale_y_continuous(limits=c(-1, 1), oob=squish) + scale_x_log10() + 
+      geom_hline(yintercept = 0.5, colour="blue", size=1, linetype="dotted") + 
+      geom_hline(yintercept = -0.5, colour="blue", size=1, linetype="dotted") + 
+      labs(x="Mean of Normalized Counts", y="Log2 Fold Change") + 
+      scale_colour_manual(name="TF", values=c("NM23H2 Transcription Factor"="orange","Significant"="skyblue","Both"="black"), na.value="grey50") + 
+      theme_bw()
     print(plot2)
-    dev.off()
     }
 }
 
