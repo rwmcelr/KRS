@@ -1,0 +1,59 @@
+## Library calls/ set script variables -------------------------------------
+setwd("/Users/rmcelroy/Desktop/RNAseq/")
+library(DESeq2)
+library(pheatmap)
+source("R/getGSdata.R")
+source("R/kshvMA.R")
+source("R/kshvSigGenes.R")
+source("R/kshvVolc.R")
+source("R/SGaP.R")
+
+## Import & pre-process ----------------------------------------------------
+# Import data from featureCounts, clean and convert to matrix
+countdata <- read.table("counts.txt", header=TRUE, row.names=1)
+countdata <- countdata[ ,6:ncol(countdata)]
+colnames(countdata) <- gsub("\\.[sb]am$", "", colnames(countdata))
+countdata <- as.matrix(countdata)
+
+# Assign condition
+condition <- factor(c(rep("mut", 3), rep("vec", 3), rep("wt", 3)))
+
+## Analysis with DESeq2 ----------------------------------------------------
+# Create a coldata frame and instantiate the DESeqDataSet. See ?DESeqDataSetFromMatrix
+coldata <- data.frame(row.names=colnames(countdata), condition)
+dds <- DESeqDataSetFromMatrix(countData=countdata, colData=coldata, design=~condition)
+dds$condition <- relevel(dds$condition, "vec")
+
+# Filter out genes with hits below 10
+keep <- rowSums(counts(dds)) >= 10
+dds <- dds[keep,]
+
+# Run the DESeq pipeline
+dds <- DESeq(dds)
+
+# Regularized log transformation for clustering/heatmaps, etc
+rld <- rlogTransformation(dds)
+
+## Generate general plots -------------------------------------------------------
+# Principal components analysis (need to use normalized)
+png(filename="PCA.png",width=8,height=8,units="in",res=500)
+DESeq2::plotPCA(rld, intgroup="condition")
+dev.off()
+
+# Sample distance heatmap
+ sampleDists <- as.matrix(dist(t(assay(rld))))
+ png(filename="sampleDists.png",width=8,height=8,units="in",res=500)
+ heatmap.2(as.matrix(sampleDists), key=F, trace="none",
+           col=colorpanel(100, "black", "white"),
+           margin=c(10, 10), main="Sample Distance Matrix")
+ dev.off()
+
+## Generate significant genes, heatmap, MA plot, and Volcano plot for specified condition ----------------------------
+SGaP("Wt Vs Vector p < 0.05", dds, "pvalue", 0.05, "wt", "vec", GS=FALSE)
+SGaP("Wt Vs Vector q < 0.05", dds, "padj", 0.05, "wt", "vec")
+
+SGaP("Wt Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "wt", "mut")
+SGaP("Wt Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "wt", "mut")
+
+SGaP("Vector Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "vec", "mut")
+SGaP("Vector Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "vec", "mut")
