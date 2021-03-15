@@ -10,5 +10,5 @@ getGSdata <- function(res, GeneSet) {
   gsFinal$symbol <- NULL
   colnames(gsFinal)[which(names(gsFinal) == "important")] <- "symbol"
   gsFinal$identity <- "Target Gene"
-  write.csv(gsFinal, file="GeneSetData.csv")
+  write.csv(gsFinal, file="TargetGeneSetData.csv")
 }

@@ -22,7 +22,7 @@ SGaP <- function(name, dds, filterBy="padj", filterVal=0.05, con1, con2, GS = FA
   setwd(paste0(current,"/",name,"/"))
   
   # Find gene level statistics for a target list of genes in RNA seq data
-  if (GS = TRUE) {
+  if (GS == TRUE) {
     getGSdata(res, gs)
   }
   # Find significant DEGs, and generate: lfc shrunk list(csv), a non shrunken list(csv), heatmap, and a .rnk file
@@ -30,8 +30,7 @@ SGaP <- function(name, dds, filterBy="padj", filterVal=0.05, con1, con2, GS = FA
   # Create a MA plot for the DEGs, with target genes highlighted if present
   kshvMA(name, res)
   # Create a Volcano plot for the DEGs, with target genes highlighted if present
-  kshvVolc(name, res)
-  
+  #kshvVolc(name, res)
   # Set the working directory back to the original before exiting the function
   setwd(current)
 }

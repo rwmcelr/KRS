@@ -6,12 +6,11 @@ library(scales)
 ## Functions ---------------------------------------------------------------
 # Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
 kshvMA <- function(name, res) {
-  resMA <- res
-  maPoints <- as.data.frame(resMA)
+  maPoints <- as.data.frame(res)
   maPoints$identity[maPoints$pvalue < 0.05] <- "Significant (p < 0.05)"
   
-  if (file.exists("GeneSetData.csv")) {
-    tf <- read.csv("GeneSetData.csv",row.names=1) 
+  if (file.exists("TargetGeneSetData.csv")) {
+    tf <- read.csv("TargetGeneSetData.csv",row.names=1) 
     maPoints <- merge(x = maPoints, y = tf, by = "symbol", all.x = TRUE)
     colnames(maPoints)[which(names(maPoints) == "identity.x")] <- "identity"
     maPoints$identity[maPoints$pvalue.x < 0.05 & maPoints$identity.y == "Target Gene"] <- "Significant Target Gene"
@@ -23,7 +22,6 @@ kshvMA <- function(name, res) {
     key <- c("Significant (p < 0.05)"="skyblue")
   }
   
-  write.csv(maPoints, file="maPoints.csv")
   png(file=paste0(name,"_MAplot.png"),width=1500,height=1500,res=150)
   p <- p + ggtitle(paste0(name,"\nMA Plot")) +
     geom_point(size=1) +

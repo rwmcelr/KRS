@@ -2,11 +2,11 @@
 setwd("/Users/rmcelroy/Desktop/RNAseq/")
 library(DESeq2)
 library(pheatmap)
-source("R/getGSdata.R")
-source("R/kshvMA.R")
-source("R/kshvSigGenes.R")
-source("R/kshvVolc.R")
-source("R/SGaP.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/getGSdata.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/kshvMA.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/kshvSigGenes.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/kshvVolc.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/SGaP.R")
 
 ## Import & pre-process ----------------------------------------------------
 # Import data from featureCounts, clean and convert to matrix
@@ -49,7 +49,7 @@ dev.off()
  dev.off()
 
 ## Generate significant genes, heatmap, MA plot, and Volcano plot for specified condition ----------------------------
-SGaP("Wt Vs Vector p < 0.05", dds, "pvalue", 0.05, "wt", "vec", GS=FALSE)
+SGaP("Wt Vs Vector p < 0.05", dds, "pvalue", 0.05, "wt", "vec", GS=TRUE)
 SGaP("Wt Vs Vector q < 0.05", dds, "padj", 0.05, "wt", "vec")
 
 SGaP("Wt Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "wt", "mut")

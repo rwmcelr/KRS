@@ -7,17 +7,17 @@ library(EnsDb.Hsapiens.v86)
 
 ## Functions ---------------------------------------------------------------
 # Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
-sigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filterVal = 0.05) {
+kshvSigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filterVal = 0.05) {
     res <- resShrunk
     resNS <- resNoShrink
   
   # Extract genes for specified value (padj is default), then order by descending log2foldchange
-  if (filBy == "pvalue") {
-    resSig <- res[ which(res$pvalue < filVal),]
-    resNS <- resNS[which(res$pvalue < filVal),]
+  if (filterBy == "pvalue") {
+    resSig <- res[ which(res$pvalue < filterVal),]
+    resNS <- resNS[which(res$pvalue < filterVal),]
   } else {
-    resSig <- res[ which(res$padj < filVal),]
-    resNS <- resNS[which(res$padj < filVal),]
+    resSig <- res[ which(res$padj < filterVal),]
+    resNS <- resNS[which(res$padj < filterVal),]
   }
   resSig <- resSig[order(resSig$log2FoldChange, decreasing=TRUE),]
   resNS <- resNS[order(resNS$log2FoldChange, decreasing=TRUE),]
@@ -36,7 +36,6 @@ sigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filterVal 
   gs$logP=-log10(gs$pvalue)
   gs$metric= gs$logP/gs$fcsign
   write.table(gs[,c("symbol","metric")],file="GeneSet.rnk",quote=F,sep="\t",row.names=F)
-  setwd(current)
   
   # Heatmap generation (needs work)
   # Generating a matrix to be used heatmap creation, labeling with gene symbol as opposed to ensembl id
