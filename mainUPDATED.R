@@ -52,8 +52,8 @@ dev.off()
 SGaP("Wt Vs Vector p < 0.05", dds, "pvalue", 0.05, "wt", "vec", GS=TRUE)
 SGaP("Wt Vs Vector q < 0.05", dds, "padj", 0.05, "wt", "vec")
 
-SGaP("Wt Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "wt", "mut")
+SGaP("Wt Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "wt", "mut", GS=TRUE)
 SGaP("Wt Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "wt", "mut")
 
-SGaP("Vector Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "vec", "mut")
-SGaP("Vector Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "vec", "mut")
+SGaP("E14A Mutant Vs Vector p < 0.05", dds, "pvalue", 0.05, "mut", "vec", GS=TRUE)
+SGaP("E14A Mutant Vs Vector q < 0.05", dds, "padj", 0.05, "mut", "vec")
