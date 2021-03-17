@@ -22,20 +22,34 @@ kshvSigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filter
   resSig <- resSig[order(resSig$log2FoldChange, decreasing=TRUE),]
   resNS <- resNS[order(resNS$log2FoldChange, decreasing=TRUE),]
   
+  # Add Entrez ID for downstream pathway analysis
+  ens.str <- substr(rownames(resSig), 1, 15)
+  resSig$entrez <- mapIds(org.Hs.eg.db,
+                          keys=ens.str,
+                          column="ENTREZID",
+                          keytype="ENSEMBL",
+                          multiVals="first")
+  
   # Write csv file of results (significant gene list)
   write.csv(resSig, file=paste0(name,"_DEGlist.csv"))
   
   # Create gene set with symbols and non shrunken metrics for downstream pathway exploration analysis
-  pathways<-resSig[,c("symbol","log2FoldChange","pvalue","padj")]
-  pathways$log2FoldChange <- resNS$log2FoldChange
-  write.csv(pathways, file="GeneSet.csv", row.names=FALSE)
+  pathways<-resNoShrink[,c("symbol","log2FoldChange","pvalue","padj")]
+  ens.str2 <- substr(rownames(pathways), 1, 15)
+  pathways$entrez <- mapIds(org.Hs.eg.db,
+                          keys=ens.str2,
+                          column="ENTREZID",
+                          keytype="ENSEMBL",
+                          multiVals="first")
+  write.csv(pathways, file="PathwayData.csv", row.names=FALSE)
   
   # Create ranked gene list (.rnk) for use with GSEA (ranks are directional log10 p value)
-  gs <- resSig[,c("symbol","log2FoldChange","pvalue")]
+  gs <- resSig[,c("symbol","log2FoldChange","pvalue","entrez")]
   gs$fcsign <- sign(gs$log2FoldChange)
   gs$logP=-log10(gs$pvalue)
   gs$metric= gs$logP/gs$fcsign
-  write.table(gs[,c("symbol","metric")],file="GeneSet.rnk",quote=F,sep="\t",row.names=F)
+  write.table(gs[,c("symbol","metric")],file="GeneSetSymbol.rnk",quote=F,sep="\t",row.names=F)
+  write.table(gs[,c("symbol","entrez")],file="GeneSetEntrez.rnk",quote=F,sep="\t",row.names=F)
   
   # Heatmap generation (needs work)
   # Generating a matrix to be used heatmap creation, labeling with gene symbol as opposed to ensembl id
