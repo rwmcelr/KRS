@@ -1,7 +1,7 @@
 ## Library calls/ set script variables -------------------------------------
 setwd("/Users/rmcelroy/Desktop/RNAseq/")
 library(DESeq2)
-library(pheatmap)
+library(gplots)
 source("/Users/rmcelroy/Desktop/RNAseq/R/getGSdata.R")
 source("/Users/rmcelroy/Desktop/RNAseq/R/kshvMA.R")
 source("/Users/rmcelroy/Desktop/RNAseq/R/kshvSigGenes.R")
@@ -35,18 +35,17 @@ dds <- DESeq(dds)
 rld <- rlogTransformation(dds)
 
 ## Generate general plots -------------------------------------------------------
-# Principal components analysis (need to use normalized)
+# Principal components analysis (need to use normalized data)
 png(filename="PCA.png",width=8,height=8,units="in",res=500)
 DESeq2::plotPCA(rld, intgroup="condition")
 dev.off()
 
 # Sample distance heatmap
- sampleDists <- as.matrix(dist(t(assay(rld))))
- png(filename="sampleDists.png",width=8,height=8,units="in",res=500)
- heatmap.2(as.matrix(sampleDists), key=F, trace="none",
-           col=colorpanel(100, "black", "white"),
-           margin=c(10, 10), main="Sample Distance Matrix")
- dev.off()
+sampleDists <- as.matrix(dist(t(assay(rld))))
+colorGradient <- colorRampPalette(c("black","yellow","white"))(n = 299)
+png(filename="sampleDists.png",width=8,height=8,units="in",res=500)
+heatmap.2(sampleDists, col = colorGradient, trace = "none", key = FALSE)
+dev.off()
 
 ## Generate significant genes, heatmap, MA plot, and Volcano plot for specified condition ----------------------------
 SGaP("Wt Vs Vector p < 0.05", dds, "pvalue", 0.05, "wt", "vec", GS=TRUE)
@@ -54,6 +53,6 @@ SGaP("Wt Vs Vector q < 0.05", dds, "padj", 0.05, "wt", "vec")
 
 SGaP("Wt Vs E14A Mutant p < 0.05", dds, "pvalue", 0.05, "wt", "mut", GS=TRUE)
 SGaP("Wt Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "wt", "mut")
-
+ 
 SGaP("E14A Mutant Vs Vector p < 0.05", dds, "pvalue", 0.05, "mut", "vec", GS=TRUE)
 SGaP("E14A Mutant Vs Vector q < 0.05", dds, "padj", 0.05, "mut", "vec")
