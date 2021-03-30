@@ -30,7 +30,7 @@ SGaP <- function(name, dds, filterBy="padj", filterVal=0.05, con1, con2, GS = FA
   # Create a MA plot for the DEGs, with target genes highlighted if present
   kshvMA(name, res)
   # Create a Volcano plot for the DEGs, with target genes highlighted if present
-  #kshvVolc(name, res)
+  kshvVolc(name, res)
   # Set the working directory back to the original before exiting the function
   setwd(current)
 }

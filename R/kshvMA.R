@@ -9,6 +9,7 @@ kshvMA <- function(name, res) {
   maPoints <- as.data.frame(res)
   maPoints$identity[maPoints$pvalue < 0.05] <- "Significant (p < 0.05)"
   
+  # Finds genes which are both significant and part of supplied target gene list, and changes their identity appropriately
   if (file.exists("TargetGeneSetData.csv")) {
     tf <- read.csv("TargetGeneSetData.csv",row.names=1) 
     maPoints <- merge(x = maPoints, y = tf, by = "symbol", all.x = TRUE)
@@ -22,6 +23,7 @@ kshvMA <- function(name, res) {
     key <- c("Significant (p < 0.05)"="skyblue")
   }
   
+  # Adding elements to the plots
   png(file=paste0(name,"_MAplot.png"),width=1500,height=1500,res=150)
   p <- p + ggtitle(paste0(name,"\nMA Plot")) +
     geom_point(size=1) +
