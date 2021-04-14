@@ -1,6 +1,7 @@
 ## Library calls/ set script variables -------------------------------------
 setwd("/Users/rmcelroy/Desktop/RNAseq/")
 library(DESeq2)
+library(pheatmap)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(EnsDb.Hsapiens.v86)
