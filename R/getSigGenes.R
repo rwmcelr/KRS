@@ -8,7 +8,7 @@ library(EnsDb.Hsapiens.v86)
 
 ## Functions ---------------------------------------------------------------
 # Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
-kshvSigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filterVal = 0.05) {
+getSigGenes <- function(name, resNoShrink, resShrunk, filterBy = "padj", filterVal = 0.05) {
     res <- resShrunk
     resNS <- resNoShrink
   
