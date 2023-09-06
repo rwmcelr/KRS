@@ -3,9 +3,9 @@ setwd("/Users/rmcelroy/Desktop/RNAseq/")
 library(DESeq2)
 library(gplots)
 source("/Users/rmcelroy/Desktop/RNAseq/R/getGSdata.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/kshvMA.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/kshvSigGenes.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/kshvVolc.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/MAplots.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/getSigGenes.R")
+source("/Users/rmcelroy/Desktop/RNAseq/R/VOLCplot.R")
 source("/Users/rmcelroy/Desktop/RNAseq/R/SGaP.R")
 
 ## Import & pre-process ----------------------------------------------------
