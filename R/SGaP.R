@@ -26,11 +26,11 @@ SGaP <- function(name, dds, filterBy="padj", filterVal=0.05, con1, con2, GS = FA
     getGSdata(res, gs)
   }
   # Find significant DEGs, and generate: lfc shrunk list(csv), a non shrunken list(csv), heatmap, and a .rnk file
-  kshvSigGenes(name, res, resShrunk, filterBy, filterVal)
+  getSigGenes(name, res, resShrunk, filterBy, filterVal)
   # Create a MA plot for the DEGs, with target genes highlighted if present
-  kshvMA(name, res)
+  MAplot(name, res)
   # Create a Volcano plot for the DEGs, with target genes highlighted if present
-  kshvVolc(name, res)
+  VOLCplot(name, res)
   # Set the working directory back to the original before exiting the function
   setwd(current)
 }
