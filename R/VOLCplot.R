@@ -4,7 +4,7 @@ library(ggrepel)
 library(scales)
 
 ## Functions ---------------------------------------------------------------
-# Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
+# Identify significant genes (user selected paramaters) and output volcano plot
 VOLCplot <- function(name, res) {
   volcPoints <- as.data.frame(res)
   volcPoints$identity[volcPoints$pvalue < 0.05] <- "Significant (p < 0.05)"
