@@ -5,7 +5,7 @@ library(scales)
 
 ## Functions ---------------------------------------------------------------
 # Identify significant genes (user selected paramaters) and output MA plot, heatmap, and filtered results
-kshvMA <- function(name, res) {
+MAplot <- function(name, res) {
   maPoints <- as.data.frame(res)
   maPoints$identity[maPoints$pvalue < 0.05] <- "Significant (p < 0.05)"
   
