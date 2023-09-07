@@ -1,12 +1,13 @@
 ## Library calls/ set script variables -------------------------------------
-setwd("/Users/rmcelroy/Desktop/RNAseq/")
+setwd("/Users/rmcelroy/Desktop/Project/")
 library(DESeq2)
 library(gplots)
-source("/Users/rmcelroy/Desktop/RNAseq/R/getGSdata.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/MAplots.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/getSigGenes.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/VOLCplot.R")
-source("/Users/rmcelroy/Desktop/RNAseq/R/SGaP.R")
+source("/Users/rmcelroy/Desktop/KRS/R/getGSdata.R")
+source("/Users/rmcelroy/Desktop/KRS/R/MAplots.R")
+source("/Users/rmcelroy/Desktop/KRS/R/getSigGenes.R")
+source("/Users/rmcelroy/Desktop/KRS/R/VOLCplot.R")
+source("/Users/rmcelroy/Desktop/KRS/R/SGaP.R")
+source("/Users/rmcelroy/Desktop/KRS/R/PEA.R")
 
 ## Import & pre-process ----------------------------------------------------
 # Import data from featureCounts, clean and convert to matrix
@@ -56,3 +57,7 @@ SGaP("Wt Vs E14A Mutant q < 0.05", dds, "padj", 0.05, "wt", "mut")
  
 SGaP("E14A Mutant Vs Vector p < 0.05", dds, "pvalue", 0.05, "mut", "vec", GS=TRUE)
 SGaP("E14A Mutant Vs Vector q < 0.05", dds, "padj", 0.05, "mut", "vec")
+
+## Generate pathway enrichment analysis plots for previously specified conditions ----------------------------
+PEA("Wt Vs Vector p < 0.05")
+# other conditions
